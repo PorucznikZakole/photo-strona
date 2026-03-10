@@ -3,7 +3,7 @@ const SITE_SETTINGS_STORAGE_KEY = "photo-site-settings";
 const AUTO_TRANSLATE_CONTENT_STORAGE_KEY = "photo-admin-auto-translate-content";
 const API_BASE = "/api";
 const SUPPORTED_LANGUAGES = ["pl", "en"];
-const EDITABLE_CONTENT_KEYS = [
+const PRIORITY_CONTENT_KEYS = [
   "heroTitle",
   "aboutP1",
   "aboutPageText",
@@ -99,6 +99,8 @@ const contentShopCollectionsTitleEl = document.getElementById("content-shop-coll
 const contentShopCollectionsDescEl = document.getElementById("content-shop-collections-desc");
 const contentShopAskBtnEl = document.getElementById("content-shop-ask-btn");
 const contentShopBuyNowEl = document.getElementById("content-shop-buy-now");
+const contentSearchInputEl = document.getElementById("admin-content-search");
+const contentAllFieldsContainerEl = document.getElementById("admin-content-all-fields");
 const autoTranslateContentInputEl = document.getElementById("admin-auto-translate-content");
 const resetContentBtnEl = document.getElementById("admin-reset-content");
 const contentLangButtons = Array.from(document.querySelectorAll(".admin-lang-btn[data-admin-lang]"));
@@ -149,6 +151,25 @@ let adminBgSources = [];
 let adminBgTimer = null;
 let adminBgVisibleLayer = 0;
 let adminBgIndex = 0;
+const staticContentFieldBindings = {
+  heroTitle: contentHeaderEl,
+  aboutP1: contentAboutEl,
+  aboutPageText: contentAboutPageEl,
+  contactDesc: contentContactEl,
+  shopKicker: contentShopKickerEl,
+  shopTitle: contentShopTitleEl,
+  shopLead: contentShopLeadEl,
+  shopCta: contentShopCtaEl,
+  shopFeaturedTitle: contentShopFeaturedTitleEl,
+  shopFeaturedDesc: contentShopFeaturedDescEl,
+  shopCollectionsTitle: contentShopCollectionsTitleEl,
+  shopCollectionsDesc: contentShopCollectionsDescEl,
+  shopAskBtn: contentShopAskBtnEl,
+  shopBuyNow: contentShopBuyNowEl
+};
+const staticContentFieldKeys = Object.keys(staticContentFieldBindings);
+const contentFieldElements = new Map();
+let currentContentFieldKeys = [];
 
 function setFeedback(message, isError = false) {
   if (!feedbackEl) {
@@ -568,15 +589,167 @@ function sanitizeContentOverrides(rawOverrides) {
       return;
     }
 
-    EDITABLE_CONTENT_KEYS.forEach((key) => {
-      const value = langOverrides[key];
+    Object.entries(langOverrides).forEach(([key, value]) => {
+      if (typeof key !== "string" || !key.trim()) {
+        return;
+      }
       if (typeof value === "string") {
-        clean[lang][key] = value;
+        clean[lang][key.trim()] = value;
       }
     });
   });
 
   return clean;
+}
+
+function getContentKeyPriority(key) {
+  const priorityIndex = PRIORITY_CONTENT_KEYS.indexOf(key);
+  return priorityIndex === -1 ? Number.MAX_SAFE_INTEGER : priorityIndex;
+}
+
+function humanizeContentKey(key) {
+  if (typeof key !== "string" || !key.trim()) {
+    return "Pole tekstowe";
+  }
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_\-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getAllEditableContentKeys() {
+  const keys = new Set([...PRIORITY_CONTENT_KEYS, ...staticContentFieldKeys]);
+
+  SUPPORTED_LANGUAGES.forEach((lang) => {
+    const defaults = isPlainObject(baseContent[lang]) ? baseContent[lang] : {};
+    Object.keys(defaults).forEach((key) => {
+      if (typeof key === "string" && key.trim()) {
+        keys.add(key.trim());
+      }
+    });
+
+    const overrides = isPlainObject(siteSettings.contentOverrides?.[lang])
+      ? siteSettings.contentOverrides[lang]
+      : {};
+    Object.keys(overrides).forEach((key) => {
+      if (typeof key === "string" && key.trim()) {
+        keys.add(key.trim());
+      }
+    });
+  });
+
+  return [...keys]
+    .filter((key) => typeof key === "string" && key.trim())
+    .sort((left, right) => {
+      const priorityDiff = getContentKeyPriority(left) - getContentKeyPriority(right);
+      if (priorityDiff !== 0) {
+        return priorityDiff;
+      }
+      return left.localeCompare(right, "pl", { sensitivity: "base" });
+    });
+}
+
+function getMergedEditableContent(lang) {
+  const language = SUPPORTED_LANGUAGES.includes(lang) ? lang : "pl";
+  const defaults = isPlainObject(baseContent[language]) ? baseContent[language] : {};
+  const overrides = isPlainObject(siteSettings.contentOverrides?.[language])
+    ? siteSettings.contentOverrides[language]
+    : {};
+
+  const merged = {};
+  Object.entries(defaults).forEach(([key, value]) => {
+    if (typeof key === "string" && key.trim() && typeof value === "string") {
+      merged[key.trim()] = value;
+    }
+  });
+  Object.entries(overrides).forEach(([key, value]) => {
+    if (typeof key === "string" && key.trim() && typeof value === "string") {
+      merged[key.trim()] = value;
+    }
+  });
+  return merged;
+}
+
+function createDynamicContentField(key) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "admin-content-field";
+  wrapper.dataset.contentKey = key;
+  const friendlyLabel = humanizeContentKey(key);
+  wrapper.dataset.searchText = `${key} ${friendlyLabel}`.toLowerCase();
+
+  const inputId = `admin-content-dynamic-${key.replace(/[^a-z0-9_-]/gi, "-").toLowerCase()}`;
+  const label = document.createElement("label");
+  label.setAttribute("for", inputId);
+  label.textContent = `${friendlyLabel} (${key})`;
+
+  const textarea = document.createElement("textarea");
+  textarea.id = inputId;
+  textarea.name = `content-dynamic-${key}`;
+  textarea.rows = 3;
+  textarea.required = false;
+
+  wrapper.append(label, textarea);
+  return { wrapper, input: textarea };
+}
+
+function applyContentSearchFilter() {
+  if (!contentAllFieldsContainerEl) {
+    return;
+  }
+  const query = String(contentSearchInputEl?.value || "").trim().toLowerCase();
+  const fields = contentAllFieldsContainerEl.querySelectorAll(".admin-content-field");
+  fields.forEach((field) => {
+    if (!query) {
+      field.hidden = false;
+      return;
+    }
+    const haystack = String(field.dataset.searchText || "").toLowerCase();
+    field.hidden = !haystack.includes(query);
+  });
+}
+
+function rebuildContentFieldRegistry() {
+  contentFieldElements.clear();
+
+  Object.entries(staticContentFieldBindings).forEach(([key, input]) => {
+    if (!input) {
+      return;
+    }
+    input.required = false;
+    contentFieldElements.set(key, input);
+  });
+
+  if (contentAllFieldsContainerEl) {
+    contentAllFieldsContainerEl.innerHTML = "";
+  }
+
+  const allKeys = getAllEditableContentKeys();
+  const staticKeys = new Set(contentFieldElements.keys());
+  const dynamicKeys = allKeys.filter((key) => !staticKeys.has(key));
+  dynamicKeys.forEach((key) => {
+    if (!contentAllFieldsContainerEl) {
+      return;
+    }
+    const { wrapper, input } = createDynamicContentField(key);
+    contentAllFieldsContainerEl.append(wrapper);
+    contentFieldElements.set(key, input);
+  });
+
+  currentContentFieldKeys = allKeys.filter((key) => contentFieldElements.has(key));
+  applyContentSearchFilter();
+}
+
+function readContentEditorValues() {
+  const values = {};
+  currentContentFieldKeys.forEach((key) => {
+    const input = contentFieldElements.get(key);
+    if (!input) {
+      return;
+    }
+    values[key] = String(input.value ?? "");
+  });
+  return values;
 }
 
 function sanitizeEnabledCategories(rawEnabledCategories) {
@@ -778,39 +951,6 @@ function setActiveInboxFilter(nextFilter) {
   renderInbox();
 }
 
-function getMergedEditableContent(lang) {
-  const language = SUPPORTED_LANGUAGES.includes(lang) ? lang : "pl";
-  const defaults = isPlainObject(baseContent[language]) ? baseContent[language] : {};
-  const overrides = isPlainObject(siteSettings.contentOverrides?.[language])
-    ? siteSettings.contentOverrides[language]
-    : {};
-
-  return {
-    heroTitle: String(overrides.heroTitle ?? defaults.heroTitle ?? ""),
-    aboutP1: String(overrides.aboutP1 ?? defaults.aboutP1 ?? ""),
-    aboutPageText: String(overrides.aboutPageText ?? defaults.aboutPageText ?? ""),
-    contactDesc: String(overrides.contactDesc ?? defaults.contactDesc ?? ""),
-    shopKicker: String(overrides.shopKicker ?? defaults.shopKicker ?? ""),
-    shopTitle: String(overrides.shopTitle ?? defaults.shopTitle ?? ""),
-    shopLead: String(overrides.shopLead ?? defaults.shopLead ?? ""),
-    shopCta: String(overrides.shopCta ?? defaults.shopCta ?? ""),
-    shopFeaturedTitle: String(
-      overrides.shopFeaturedTitle ?? defaults.shopFeaturedTitle ?? ""
-    ),
-    shopFeaturedDesc: String(
-      overrides.shopFeaturedDesc ?? defaults.shopFeaturedDesc ?? ""
-    ),
-    shopCollectionsTitle: String(
-      overrides.shopCollectionsTitle ?? defaults.shopCollectionsTitle ?? ""
-    ),
-    shopCollectionsDesc: String(
-      overrides.shopCollectionsDesc ?? defaults.shopCollectionsDesc ?? ""
-    ),
-    shopAskBtn: String(overrides.shopAskBtn ?? defaults.shopAskBtn ?? ""),
-    shopBuyNow: String(overrides.shopBuyNow ?? defaults.shopBuyNow ?? "")
-  };
-}
-
 function setActiveContentLanguage(lang) {
   activeContentLanguage = SUPPORTED_LANGUAGES.includes(lang) ? lang : "pl";
 
@@ -820,49 +960,16 @@ function setActiveContentLanguage(lang) {
     button.setAttribute("aria-pressed", String(isActive));
   });
 
+  rebuildContentFieldRegistry();
   const merged = getMergedEditableContent(activeContentLanguage);
-  if (contentHeaderEl) {
-    contentHeaderEl.value = merged.heroTitle;
-  }
-  if (contentAboutEl) {
-    contentAboutEl.value = merged.aboutP1;
-  }
-  if (contentAboutPageEl) {
-    contentAboutPageEl.value = merged.aboutPageText;
-  }
-  if (contentContactEl) {
-    contentContactEl.value = merged.contactDesc;
-  }
-  if (contentShopKickerEl) {
-    contentShopKickerEl.value = merged.shopKicker;
-  }
-  if (contentShopTitleEl) {
-    contentShopTitleEl.value = merged.shopTitle;
-  }
-  if (contentShopLeadEl) {
-    contentShopLeadEl.value = merged.shopLead;
-  }
-  if (contentShopCtaEl) {
-    contentShopCtaEl.value = merged.shopCta;
-  }
-  if (contentShopFeaturedTitleEl) {
-    contentShopFeaturedTitleEl.value = merged.shopFeaturedTitle;
-  }
-  if (contentShopFeaturedDescEl) {
-    contentShopFeaturedDescEl.value = merged.shopFeaturedDesc;
-  }
-  if (contentShopCollectionsTitleEl) {
-    contentShopCollectionsTitleEl.value = merged.shopCollectionsTitle;
-  }
-  if (contentShopCollectionsDescEl) {
-    contentShopCollectionsDescEl.value = merged.shopCollectionsDesc;
-  }
-  if (contentShopAskBtnEl) {
-    contentShopAskBtnEl.value = merged.shopAskBtn;
-  }
-  if (contentShopBuyNowEl) {
-    contentShopBuyNowEl.value = merged.shopBuyNow;
-  }
+  currentContentFieldKeys.forEach((key) => {
+    const input = contentFieldElements.get(key);
+    if (!input) {
+      return;
+    }
+    input.value = String(merged[key] ?? "");
+  });
+  applyContentSearchFilter();
 }
 
 function initializeSettingsForm() {
@@ -1239,10 +1346,18 @@ async function translateTextWithGoogleInBrowser(text, sourceLanguage = "pl", tar
 }
 
 async function translatePolishContentToEnglishInBrowser(contentValues) {
+  const payload = {};
+  Object.entries(contentValues || {}).forEach(([key, value]) => {
+    if (typeof key !== "string" || !key.trim()) {
+      return;
+    }
+    payload[key.trim()] = String(value ?? "");
+  });
+
   const translatedValues = {};
-  for (const key of EDITABLE_CONTENT_KEYS) {
+  for (const [key, value] of Object.entries(payload)) {
     translatedValues[key] = await translateTextWithGoogleInBrowser(
-      String(contentValues?.[key] ?? ""),
+      value,
       "pl",
       "en"
     );
@@ -1252,8 +1367,11 @@ async function translatePolishContentToEnglishInBrowser(contentValues) {
 
 async function translatePolishContentToEnglish(contentValues) {
   const payload = {};
-  EDITABLE_CONTENT_KEYS.forEach((key) => {
-    payload[key] = String(contentValues?.[key] ?? "");
+  Object.entries(contentValues || {}).forEach(([key, value]) => {
+    if (typeof key !== "string" || !key.trim()) {
+      return;
+    }
+    payload[key.trim()] = String(value ?? "");
   });
 
   const result = await apiRequest("/admin/translate-content", {
@@ -1273,8 +1391,8 @@ async function translatePolishContentToEnglish(contentValues) {
     }
 
     const translatedValues = {};
-    EDITABLE_CONTENT_KEYS.forEach((key) => {
-      translatedValues[key] = String(translatedContent[key] ?? "").trim();
+    Object.keys(payload).forEach((key) => {
+      translatedValues[key] = String(translatedContent[key] ?? "");
     });
     return translatedValues;
   }
@@ -1488,46 +1606,15 @@ async function handleContentSubmit(event) {
     return;
   }
 
-  if (
-    !contentHeaderEl ||
-    !contentAboutEl ||
-    !contentAboutPageEl ||
-    !contentContactEl ||
-    !contentShopKickerEl ||
-    !contentShopTitleEl ||
-    !contentShopLeadEl ||
-    !contentShopCtaEl ||
-    !contentShopFeaturedTitleEl ||
-    !contentShopFeaturedDescEl ||
-    !contentShopCollectionsTitleEl ||
-    !contentShopCollectionsDescEl ||
-    !contentShopAskBtnEl ||
-    !contentShopBuyNowEl
-  ) {
+  if (!currentContentFieldKeys.length) {
+    rebuildContentFieldRegistry();
+  }
+  if (!currentContentFieldKeys.length) {
+    setFeedback("Brak pól treści do edycji.", true);
     return;
   }
 
-  const values = {
-    heroTitle: contentHeaderEl.value.trim(),
-    aboutP1: contentAboutEl.value.trim(),
-    aboutPageText: contentAboutPageEl.value.trim(),
-    contactDesc: contentContactEl.value.trim(),
-    shopKicker: contentShopKickerEl.value.trim(),
-    shopTitle: contentShopTitleEl.value.trim(),
-    shopLead: contentShopLeadEl.value.trim(),
-    shopCta: contentShopCtaEl.value.trim(),
-    shopFeaturedTitle: contentShopFeaturedTitleEl.value.trim(),
-    shopFeaturedDesc: contentShopFeaturedDescEl.value.trim(),
-    shopCollectionsTitle: contentShopCollectionsTitleEl.value.trim(),
-    shopCollectionsDesc: contentShopCollectionsDescEl.value.trim(),
-    shopAskBtn: contentShopAskBtnEl.value.trim(),
-    shopBuyNow: contentShopBuyNowEl.value.trim()
-  };
-
-  if (Object.values(values).some((value) => !value)) {
-    setFeedback("Uzupełnij wszystkie pola treści.", true);
-    return;
-  }
+  const values = readContentEditorValues();
 
   const defaults = isPlainObject(baseContent[activeContentLanguage])
     ? baseContent[activeContentLanguage]
@@ -1537,12 +1624,13 @@ async function handleContentSubmit(event) {
     ...nextOverrides[activeContentLanguage]
   };
 
-  EDITABLE_CONTENT_KEYS.forEach((key) => {
+  Object.keys(values).forEach((key) => {
     const defaultValue = typeof defaults[key] === "string" ? defaults[key] : "";
-    if (values[key] === defaultValue) {
+    const userValue = String(values[key] ?? "");
+    if (userValue === defaultValue) {
       delete langOverrides[key];
     } else {
-      langOverrides[key] = values[key];
+      langOverrides[key] = userValue;
     }
   });
   nextOverrides[activeContentLanguage] = langOverrides;
@@ -1559,8 +1647,8 @@ async function handleContentSubmit(event) {
         ...nextOverrides.en
       };
 
-      EDITABLE_CONTENT_KEYS.forEach((key) => {
-        const translatedValue = String(translatedEnValues[key] ?? "").trim();
+      Object.keys(values).forEach((key) => {
+        const translatedValue = String(translatedEnValues[key] ?? "");
         const defaultValueEn = typeof defaultsEn[key] === "string" ? defaultsEn[key] : "";
         if (translatedValue === defaultValueEn) {
           delete enOverrides[key];
@@ -1726,6 +1814,12 @@ function attachEventListeners() {
   if (resetContentBtnEl) {
     resetContentBtnEl.addEventListener("click", () => {
       void handleResetContent();
+    });
+  }
+
+  if (contentSearchInputEl) {
+    contentSearchInputEl.addEventListener("input", () => {
+      applyContentSearchFilter();
     });
   }
 

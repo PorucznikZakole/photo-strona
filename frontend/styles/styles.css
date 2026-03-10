@@ -868,6 +868,37 @@ body.modal-open {
   text-align: center;
 }
 
+.admin-tab-panel[data-admin-panel="content"] .admin-form input,
+.admin-tab-panel[data-admin-panel="content"] .admin-form textarea {
+  text-align: left;
+}
+
+.admin-content-all-fields {
+  width: 100%;
+  display: grid;
+  gap: 0.55rem;
+  max-height: 46vh;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.admin-content-field {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.6rem;
+  background: var(--panel-strong);
+  display: grid;
+  gap: 0.3rem;
+}
+
+.admin-content-field label {
+  font-size: 0.82rem;
+}
+
+.admin-content-field textarea {
+  min-height: 4.8rem;
+}
+
 .admin-checkbox {
   display: inline-flex;
   align-items: center;

@@ -197,6 +197,19 @@
               <label for="content-shop-buy-now">Sklep: tekst przycisku „Kup wydruk”</label>
               <input id="content-shop-buy-now" name="shopBuyNow" type="text" required />
 
+              <p class="admin-hint"><strong>Wszystkie teksty strony</strong></p>
+              <label for="admin-content-search">Szukaj pola tekstowego</label>
+              <input
+                id="admin-content-search"
+                type="search"
+                placeholder="np. navBlog, bookingTitle, maintenanceDesc..."
+                autocomplete="off"
+              />
+              <p class="admin-hint">
+                Poniżej pojawią się wszystkie pozostałe pola tekstowe (PL/EN) do pełnej edycji.
+              </p>
+              <div id="admin-content-all-fields" class="admin-content-all-fields"></div>
+
               <label class="admin-checkbox" for="admin-auto-translate-content">
                 <input id="admin-auto-translate-content" type="checkbox" checked />
                 <span>Auto-tłumaczenie z polskiego na angielski przy zapisie</span>

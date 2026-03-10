@@ -5,19 +5,18 @@ const API_BASE = "/api";
 const SUPPORTED_LANGUAGES = ["pl", "en"];
 const PRIORITY_CONTENT_KEYS = [
   "heroTitle",
+  "heroLead",
   "aboutP1",
+  "aboutP2",
   "aboutPageText",
   "contactDesc",
   "shopKicker",
   "shopTitle",
   "shopLead",
-  "shopCta",
   "shopFeaturedTitle",
   "shopFeaturedDesc",
   "shopCollectionsTitle",
-  "shopCollectionsDesc",
-  "shopAskBtn",
-  "shopBuyNow"
+  "shopCollectionsDesc"
 ];
 const PHOTO_CATEGORIES = ["bw", "color", "nature", "landscape", "portrait"];
 const PHOTO_CATEGORY_FOLDERS = {
@@ -92,13 +91,10 @@ const contentContactEl = document.getElementById("content-contact");
 const contentShopKickerEl = document.getElementById("content-shop-kicker");
 const contentShopTitleEl = document.getElementById("content-shop-title");
 const contentShopLeadEl = document.getElementById("content-shop-lead");
-const contentShopCtaEl = document.getElementById("content-shop-cta");
 const contentShopFeaturedTitleEl = document.getElementById("content-shop-featured-title");
 const contentShopFeaturedDescEl = document.getElementById("content-shop-featured-desc");
 const contentShopCollectionsTitleEl = document.getElementById("content-shop-collections-title");
 const contentShopCollectionsDescEl = document.getElementById("content-shop-collections-desc");
-const contentShopAskBtnEl = document.getElementById("content-shop-ask-btn");
-const contentShopBuyNowEl = document.getElementById("content-shop-buy-now");
 const contentSearchInputEl = document.getElementById("admin-content-search");
 const contentAllFieldsContainerEl = document.getElementById("admin-content-all-fields");
 const autoTranslateContentInputEl = document.getElementById("admin-auto-translate-content");
@@ -159,13 +155,10 @@ const staticContentFieldBindings = {
   shopKicker: contentShopKickerEl,
   shopTitle: contentShopTitleEl,
   shopLead: contentShopLeadEl,
-  shopCta: contentShopCtaEl,
   shopFeaturedTitle: contentShopFeaturedTitleEl,
   shopFeaturedDesc: contentShopFeaturedDescEl,
   shopCollectionsTitle: contentShopCollectionsTitleEl,
-  shopCollectionsDesc: contentShopCollectionsDescEl,
-  shopAskBtn: contentShopAskBtnEl,
-  shopBuyNow: contentShopBuyNowEl
+  shopCollectionsDesc: contentShopCollectionsDescEl
 };
 const staticContentFieldKeys = Object.keys(staticContentFieldBindings);
 const contentFieldElements = new Map();
@@ -618,6 +611,20 @@ function humanizeContentKey(key) {
     .trim();
 }
 
+function shouldIncludeContentEditorKey(key) {
+  if (typeof key !== "string" || !key.trim()) {
+    return false;
+  }
+  const safeKey = key.trim();
+  const blockedPattern =
+    /(^nav)|(^yt)|(^themeTo)|(^paymentMethod)|(^carrier)|(Btn$)|(Cta$)|(Submit$)|(Tab$)|(Label$)|(Aria$)|(Placeholder$)|(Subject$)|(openPhotoPrefix)/;
+  if (blockedPattern.test(safeKey)) {
+    return false;
+  }
+  const allowedPattern = /(Title$)|(Heading$)|(Lead$)|(Desc$)|(Text$)|(Kicker$)|(P1$)|(P2$)|(Hint$)/;
+  return allowedPattern.test(safeKey);
+}
+
 function getAllEditableContentKeys() {
   const keys = new Set([...PRIORITY_CONTENT_KEYS, ...staticContentFieldKeys]);
 
@@ -640,7 +647,7 @@ function getAllEditableContentKeys() {
   });
 
   return [...keys]
-    .filter((key) => typeof key === "string" && key.trim())
+    .filter((key) => shouldIncludeContentEditorKey(key))
     .sort((left, right) => {
       const priorityDiff = getContentKeyPriority(left) - getContentKeyPriority(right);
       if (priorityDiff !== 0) {

@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Admina | Cause Love Photography</title>
+    <meta name="description" content="Prosty panel administracyjny strony c4uselove." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link id="site-favicon" rel="icon" type="image/png" href="./assets/logo/logo.png?v=4" />
+    <link id="site-favicon-shortcut" rel="shortcut icon" href="./assets/logo/logo.png?v=4" />
+    <link id="site-favicon-apple" rel="apple-touch-icon" href="./assets/logo/logo.png?v=4" />
+    <link rel="stylesheet" href="./frontend/styles/styles.css" />
+  </head>
+  <body class="admin-page" data-theme="dark">
+    <div class="bg-stage" aria-hidden="true">
+      <div class="bg-layer is-visible"></div>
+      <div class="bg-layer"></div>
+    </div>
+    <div class="bg-vignette" aria-hidden="true"></div>
+    <div class="grain"></div>
+
+    <main class="admin-main" id="top">
+      <section class="section admin-section reveal visible">
+        <h1 class="admin-title">Panel administracyjny</h1>
+        <p id="admin-login-lead" class="admin-lead">Zaloguj się i zarządzaj treścią oraz ustawieniami strony.</p>
+
+        <div id="admin-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
+
+        <form id="admin-login-form" class="admin-form">
+          <label for="admin-password">Hasło administratora</label>
+          <input
+            id="admin-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+          <button class="shop-btn" type="submit">Zaloguj</button>
+        </form>
+
+        <div id="admin-panel" class="admin-panel" hidden>
+          <div class="admin-tabs" role="tablist" aria-label="Sekcje panelu">
+            <button class="admin-tab active" data-admin-tab="settings" type="button" aria-pressed="true">
+              Ustawienia strony
+            </button>
+            <button class="admin-tab" data-admin-tab="content" type="button" aria-pressed="false">
+              Edycja treści
+            </button>
+            <button class="admin-tab" data-admin-tab="blog" type="button" aria-pressed="false">
+              Blog
+            </button>
+            <button class="admin-tab" data-admin-tab="inbox" type="button" aria-pressed="false">
+              Wiadomości
+            </button>
+            <button class="admin-tab" data-admin-tab="orders" type="button" aria-pressed="false">
+              Zamówienia
+            </button>
+            <button class="admin-tab" data-admin-tab="users" type="button" aria-pressed="false">
+              Użytkownicy
+            </button>
+            <button class="admin-tab" data-admin-tab="password" type="button" aria-pressed="false">
+              Hasło
+            </button>
+          </div>
+
+          <section class="admin-tab-panel" data-admin-panel="settings">
+            <h2>Ustawienia strony</h2>
+            <form id="admin-settings-form" class="admin-form">
+              <label class="admin-checkbox" for="setting-shop-enabled">
+                <input id="setting-shop-enabled" type="checkbox" />
+                <span>Pokaż zakładkę i stronę „Sklep”</span>
+              </label>
+              <label class="admin-checkbox" for="setting-maintenance-mode">
+                <input id="setting-maintenance-mode" type="checkbox" />
+                <span>Przerwa techniczna (ukryj stronę dla odwiedzających)</span>
+              </label>
+              <fieldset class="admin-category-group">
+                <legend>Kategorie: Portfolio</legend>
+                <div class="admin-category-grid">
+                  <label class="admin-checkbox" for="setting-portfolio-category-bw">
+                    <input id="setting-portfolio-category-bw" type="checkbox" />
+                    <span>Czarno-białe</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-portfolio-category-color">
+                    <input id="setting-portfolio-category-color" type="checkbox" />
+                    <span>Kolor</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-portfolio-category-nature">
+                    <input id="setting-portfolio-category-nature" type="checkbox" />
+                    <span>Natura</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-portfolio-category-landscape">
+                    <input id="setting-portfolio-category-landscape" type="checkbox" />
+                    <span>Krajobraz</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-portfolio-category-portrait">
+                    <input id="setting-portfolio-category-portrait" type="checkbox" />
+                    <span>Sesja</span>
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset class="admin-category-group">
+                <legend>Kategorie: Sklep</legend>
+                <div class="admin-category-grid">
+                  <label class="admin-checkbox" for="setting-shop-category-bw">
+                    <input id="setting-shop-category-bw" type="checkbox" />
+                    <span>Czarno-białe</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-shop-category-color">
+                    <input id="setting-shop-category-color" type="checkbox" />
+                    <span>Kolor</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-shop-category-nature">
+                    <input id="setting-shop-category-nature" type="checkbox" />
+                    <span>Natura</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-shop-category-landscape">
+                    <input id="setting-shop-category-landscape" type="checkbox" />
+                    <span>Krajobraz</span>
+                  </label>
+                  <label class="admin-checkbox" for="setting-shop-category-portrait">
+                    <input id="setting-shop-category-portrait" type="checkbox" />
+                    <span>Sesja</span>
+                  </label>
+                </div>
+                <p class="admin-hint">W sklepie zakładki bez zdjęć i wyłączone kategorie są ukrywane.</p>
+              </fieldset>
+              <button class="shop-btn" type="submit">Zapisz ustawienia</button>
+            </form>
+          </section>
+
+          <section class="admin-tab-panel" data-admin-panel="content" hidden>
+            <h2>Edycja treści</h2>
+            <div class="admin-lang-switch" role="group" aria-label="Wybór języka treści">
+              <button id="admin-content-lang-pl" class="admin-lang-btn active" data-admin-lang="pl" type="button" aria-pressed="true">
+                Polski
+              </button>
+              <button id="admin-content-lang-en" class="admin-lang-btn" data-admin-lang="en" type="button" aria-pressed="false">
+                English
+              </button>
+            </div>
+            <form id="admin-content-form" class="admin-form">
+              <label for="content-header">Nagłówek (sekcja startowa)</label>
+              <textarea id="content-header" name="heroTitle" rows="3" required></textarea>
+
+              <label for="content-about">O mnie</label>
+              <textarea id="content-about" name="aboutP1" rows="5" required></textarea>
+
+              <label for="content-about-page">O mnie (osobna strona)</label>
+              <textarea id="content-about-page" name="aboutPageText" rows="5" required></textarea>
+
+              <label for="content-contact">Kontakt (opis)</label>
+              <textarea id="content-contact" name="contactDesc" rows="4" required></textarea>
+
+              <p class="admin-hint"><strong>Treści sklepu</strong></p>
+
+              <label for="content-shop-kicker">Sklep: podpis nad nagłówkiem</label>
+              <input id="content-shop-kicker" name="shopKicker" type="text" required />
+
+              <label for="content-shop-title">Sklep: główny nagłówek</label>
+              <textarea id="content-shop-title" name="shopTitle" rows="3" required></textarea>
+
+              <label for="content-shop-lead">Sklep: opis pod nagłówkiem</label>
+              <textarea id="content-shop-lead" name="shopLead" rows="4" required></textarea>
+
+              <label for="content-shop-cta">Sklep: przycisk główny</label>
+              <input id="content-shop-cta" name="shopCta" type="text" required />
+
+              <label for="content-shop-featured-title">Sklep: tytuł „Wybrane na sprzedaż”</label>
+              <input id="content-shop-featured-title" name="shopFeaturedTitle" type="text" required />
+
+              <label for="content-shop-featured-desc">Sklep: opis „Wybrane na sprzedaż”</label>
+              <textarea id="content-shop-featured-desc" name="shopFeaturedDesc" rows="3" required></textarea>
+
+              <label for="content-shop-collections-title">Sklep: tytuł „Kolekcje”</label>
+              <input id="content-shop-collections-title" name="shopCollectionsTitle" type="text" required />
+
+              <label for="content-shop-collections-desc">Sklep: opis „Kolekcje”</label>
+              <textarea id="content-shop-collections-desc" name="shopCollectionsDesc" rows="3" required></textarea>
+
+              <label for="content-shop-ask-btn">Sklep: tekst przycisku „Spytaj o dostępność”</label>
+              <input id="content-shop-ask-btn" name="shopAskBtn" type="text" required />
+
+              <label for="content-shop-buy-now">Sklep: tekst przycisku „Kup wydruk”</label>
+              <input id="content-shop-buy-now" name="shopBuyNow" type="text" required />
+
+              <label class="admin-checkbox" for="admin-auto-translate-content">
+                <input id="admin-auto-translate-content" type="checkbox" checked />
+                <span>Auto-tłumaczenie z polskiego na angielski przy zapisie</span>
+              </label>
+              <p class="admin-hint">
+                Działa podczas edycji języka polskiego. Tekst EN będzie automatycznie aktualizowany z zachowaniem kontekstu.
+              </p>
+
+              <div class="admin-actions-row">
+                <button class="shop-btn" type="submit">Zapisz treści</button>
+                <button id="admin-reset-content" class="shop-btn admin-ghost-btn" type="button">
+                  Przywróć domyślne
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="admin-tab-panel" data-admin-panel="blog" hidden>
+            <h2>Blog</h2>
+            <p class="admin-hint">
+              Twórz i układaj wpisy blokami: tekst, zdjęcie i wideo. Kolejność bloków ustalasz ręcznie.
+            </p>
+            <div id="admin-blog-feedback" class="admin-feedback" role="status" aria-live="polite"></div>
+            <div class="admin-blog-layout">
+              <aside class="admin-blog-sidebar">
+                <div class="admin-actions-row">
+                  <button id="admin-blog-new" class="shop-btn" type="button">Nowy wpis</button>
+                  <button id="admin-blog-refresh" class="shop-btn admin-ghost-btn" type="button">
+                    Odśwież
+                  </button>
+                </div>
+                <div id="admin-blog-posts-list" class="admin-inbox-list"></div>
+                <p id="admin-blog-empty" class="admin-hint" hidden>Brak wpisów.</p>
+              </aside>
+
+              <form id="admin-blog-form" class="admin-form admin-blog-form">
+                <input id="admin-blog-id" type="hidden" />
+
+                <label for="admin-blog-slug">Slug wpisu</label>
+                <input id="admin-blog-slug" name="slug" type="text" placeholder="np. nocne-kadry" required />
+
+                <label for="admin-blog-date">Data publikacji</label>
+                <input id="admin-blog-date" name="date" type="date" required />
+
+                <label for="admin-blog-read-minutes">Czas czytania (min)</label>
+                <input id="admin-blog-read-minutes" name="readMinutes" type="number" min="1" max="60" value="3" />
+
+                <label for="admin-blog-sort-order">Kolejność (mniejsza liczba = wyżej)</label>
+                <input id="admin-blog-sort-order" name="sortOrder" type="number" value="0" />
+
+                <label class="admin-checkbox" for="admin-blog-published">
+                  <input id="admin-blog-published" name="isPublished" type="checkbox" checked />
+                  <span>Opublikowany</span>
+                </label>
+
+                <label for="admin-blog-title-pl">Tytuł (PL)</label>
+                <input id="admin-blog-title-pl" name="titlePl" type="text" required />
+
+                <label for="admin-blog-title-en">Tytuł (EN)</label>
+                <input id="admin-blog-title-en" name="titleEn" type="text" required />
+
+                <label for="admin-blog-lead-pl">Lead / opis (PL)</label>
+                <textarea id="admin-blog-lead-pl" name="leadPl" rows="3"></textarea>
+
+                <label for="admin-blog-lead-en">Lead / opis (EN)</label>
+                <textarea id="admin-blog-lead-en" name="leadEn" rows="3"></textarea>
+
+                <p class="admin-hint"><strong>Bloki treści wpisu</strong></p>
+                <p class="admin-hint">
+                  Dla zdjęcia i wideo podaj ścieżkę lub URL, np. `./assets/blog/moj-plik.jpg`.
+                </p>
+
+                <div class="admin-actions-row">
+                  <button id="admin-blog-add-text" class="shop-btn admin-ghost-btn" type="button">
+                    + Tekst
+                  </button>
+                  <button id="admin-blog-add-image" class="shop-btn admin-ghost-btn" type="button">
+                    + Zdjęcie
+                  </button>
+                  <button id="admin-blog-add-video" class="shop-btn admin-ghost-btn" type="button">
+                    + Wideo
+                  </button>
+                </div>
+
+                <div id="admin-blog-blocks" class="admin-blog-blocks"></div>
+
+                <div class="admin-actions-row">
+                  <button class="shop-btn" type="submit">Zapisz wpis</button>
+                  <button id="admin-blog-delete" class="shop-btn admin-ghost-btn" type="button">
+                    Usuń wpis
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="admin-tab-panel" data-admin-panel="inbox" hidden>
+            <h2>Wiadomości od użytkowników</h2>
+            <p class="admin-hint">
+              Tu pojawiają się zgłoszenia z formularzy „Umów sesję” i „Spytaj o dostępność”.
+            </p>
+            <div class="admin-inbox-toolbar">
+              <div class="admin-inbox-filters" role="group" aria-label="Filtr wiadomości">
+                <button class="admin-filter-btn active" data-inbox-filter="all" type="button" aria-pressed="true">
+                  Wszystkie
+                </button>
+                <button class="admin-filter-btn" data-inbox-filter="booking" type="button" aria-pressed="false">
+                  Umów sesję
+                </button>
+                <button class="admin-filter-btn" data-inbox-filter="inquiry" type="button" aria-pressed="false">
+                  Sklep
+                </button>
+              </div>
+              <button id="admin-clear-inbox" class="shop-btn admin-ghost-btn" type="button">
+                Wyczyść wiadomości
+              </button>
+            </div>
+            <div id="admin-inbox-list" class="admin-inbox-list"></div>
+            <p id="admin-inbox-empty" class="admin-hint" hidden>Brak wiadomości.</p>
+          </section>
+
+          <section class="admin-tab-panel" data-admin-panel="orders" hidden>
+            <h2>Złożone zamówienia</h2>
+            <p class="admin-hint">
+              Tu znajdziesz zamówienia złożone przez użytkowników w sekcji „Wybrane na sprzedaż”.
+            </p>
+            <div class="admin-inbox-toolbar">
+              <button id="admin-clear-orders" class="shop-btn admin-ghost-btn" type="button">
+                Wyczyść zamówienia
+              </button>
+            </div>
+            <div id="admin-orders-list" class="admin-inbox-list"></div>
+            <p id="admin-orders-empty" class="admin-hint" hidden>Brak zamówień.</p>
+          </section>
+
+          <section class="admin-tab-panel" data-admin-panel="users" hidden>
+            <h2>Zarejestrowani użytkownicy</h2>
+            <p id="admin-users-source" class="admin-hint">
+              Konta są zapisywane w folderze `data/users` (plik `accounts.json`).
+            </p>
+            <div id="admin-users-list" class="admin-inbox-list"></div>
+            <p id="admin-users-empty" class="admin-hint" hidden>Brak zarejestrowanych użytkowników.</p>
+          </section>
+
+          <section class="admin-tab-panel" data-admin-panel="password" hidden>
+            <h2>Zmiana hasła</h2>
+            <form id="admin-password-form" class="admin-form">
+              <label for="current-password">Obecne hasło</label>
+              <input
+                id="current-password"
+                name="currentPassword"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+
+              <label for="new-password">Nowe hasło</label>
+              <input
+                id="new-password"
+                name="newPassword"
+                type="password"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+
+              <label for="repeat-password">Powtórz nowe hasło</label>
+              <input
+                id="repeat-password"
+                name="repeatPassword"
+                type="password"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+
+              <button class="shop-btn" type="submit">Zmień hasło</button>
+            </form>
+          </section>
+
+          <div class="admin-actions-row">
+            <a class="shop-btn admin-ghost-btn admin-logout" href="./index.html" title="Przejdź na stronę główną">
+              Przejdź na stronę
+            </a>
+            <button id="admin-logout" class="shop-btn admin-logout" type="button">
+              Wyloguj
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./frontend/js/admin.js"></script>
+    <script src="./frontend/js/admin-blog.js"></script>
+  </body>
+</html>

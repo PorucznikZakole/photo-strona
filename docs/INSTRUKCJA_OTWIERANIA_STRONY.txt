@@ -1,0 +1,38 @@
+INSTRUKCJA OTWIERANIA STRONY (MAC)
+
+SZYBKI START (1 klik):
+- W folderze projektu uruchom plik:
+  START_STRONA.command
+- Plik automatycznie uruchomi serwer i otworzy stronę.
+
+1) Otwórz Terminal
+- Wciśnij Command + Spacja
+- Wpisz: Terminal
+- Enter
+
+2) Przejdź do folderu projektu
+Wklej i Enter:
+cd "/Users/kamilkozlowski/Documents/Photo strona "
+
+3) Uruchom serwer strony
+Wklej i Enter:
+python3 server.py --host 0.0.0.0 --port 8080
+
+4) Otwórz stronę w przeglądarce
+Wpisz w pasku adresu:
+http://localhost:8080/
+
+5) Otwórz panel admina
+Wpisz w pasku adresu:
+http://localhost:8080/admin.html
+
+Hasło admina:
+Samolot123
+
+WAŻNE:
+- Nie otwieraj pliku index.html bezpośrednio z folderu (dwuklikiem),
+  bo wtedy funkcje globalne (zamówienia, ustawienia) nie będą działać.
+- Serwer musi być uruchomiony w Terminalu cały czas podczas używania strony.
+
+Jak zatrzymać serwer:
+- W Terminalu naciśnij: Control + C

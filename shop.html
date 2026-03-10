@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cause Love Photography | Sklep</title>
+    <meta
+      name="description"
+      content="Sklep z wydrukami fotografii w klimacie street."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link id="site-favicon" rel="icon" type="image/png" href="./assets/logo/logo.png?v=4" />
+    <link id="site-favicon-shortcut" rel="shortcut icon" href="./assets/logo/logo.png?v=4" />
+    <link id="site-favicon-apple" rel="apple-touch-icon" href="./assets/logo/logo.png?v=4" />
+    <link rel="stylesheet" href="./frontend/styles/styles.css" />
+  </head>
+  <body>
+    <div class="bg-stage" aria-hidden="true">
+      <video id="bg-video" class="bg-video" muted loop playsinline autoplay hidden></video>
+      <div class="bg-layer is-visible"></div>
+      <div class="bg-layer"></div>
+    </div>
+    <div class="bg-vignette" aria-hidden="true"></div>
+    <div class="grain"></div>
+
+    <header class="site-header">
+      <a class="brand" href="./index.html#top">
+        <img id="brand-logo" class="brand-logo" alt="Logo c4auselove" hidden />
+        <span>c4auselove | photography</span>
+      </a>
+      <nav>
+        <a id="nav-portfolio" href="./index.html#portfolio">Portfolio</a>
+        <a id="nav-about" href="./index.html#o-mnie">O mnie</a>
+        <a id="nav-contact" href="./index.html#kontakt">Kontakt</a>
+        <a id="nav-shop" href="#top">Sklep</a>
+        <a id="nav-blog" href="./blog.html">Blog</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch" aria-label="Zmiana języka">
+          <button id="lang-pl" class="lang-flag active" data-lang="pl" type="button" title="Polski" aria-label="Polski" aria-pressed="true">🇵🇱</button>
+          <button id="lang-en" class="lang-flag" data-lang="en" type="button" title="English" aria-label="English" aria-pressed="false">🇬🇧</button>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-live="polite">
+          Jasny tryb
+        </button>
+        <a
+          id="admin-link"
+          class="admin-link"
+          href="./admin.html"
+          aria-label="Panel administracyjny"
+          title="Panel administracyjny"
+        >
+          <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+            <circle cx="12" cy="8" r="3.3" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="M5.2 19.2c.7-3.2 3.5-5.2 6.8-5.2s6.1 2 6.8 5.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <main id="top" class="shop-main">
+      <section class="section shop-hero reveal">
+        <p id="shop-kicker" class="kicker">Street print shop</p>
+        <h1 id="shop-title">Wydruki, które wyglądają jak miasto o 3:00 nad ranem.</h1>
+        <p id="shop-lead" class="lead">
+          Limitowane serie wydruków z ulicznych kadrów. Matowy papier fine art,
+          sygnatura i numer edycji.
+        </p>
+        <a id="shop-cta" class="cta" href="#shop-collections">Zapytaj o zamówienie</a>
+      </section>
+
+      <section class="section reveal">
+        <div class="section-head">
+          <h2 id="shop-featured-title">Wybrane na sprzedaż</h2>
+          <p id="shop-featured-desc">Losowo wybrane kadry, które aktualnie promuję w sklepie.</p>
+        </div>
+        <div id="shop-featured-grid" class="shop-featured-grid"></div>
+      </section>
+
+      <section id="shop-collections" class="section reveal visible">
+        <div class="section-head">
+          <h2 id="shop-collections-title">Kolekcje</h2>
+          <p id="shop-collections-desc">Wybierz dowolny kadr i zapytaj o dostępność wydruku.</p>
+        </div>
+        <div class="shop-tabs" role="tablist" aria-label="Kategorie">
+          <button id="shop-tab-all" class="shop-tab active" data-shop-tab="all" type="button" aria-pressed="true">
+            Wszystko
+          </button>
+          <button id="shop-tab-bw" class="shop-tab" data-shop-tab="bw" type="button" aria-pressed="false">
+            Czarno-białe
+          </button>
+          <button id="shop-tab-color" class="shop-tab" data-shop-tab="color" type="button" aria-pressed="false">
+            Kolor
+          </button>
+          <button id="shop-tab-nature" class="shop-tab" data-shop-tab="nature" type="button" aria-pressed="false">
+            Natura
+          </button>
+          <button id="shop-tab-landscape" class="shop-tab" data-shop-tab="landscape" type="button" aria-pressed="false">
+            Krajobraz
+          </button>
+        </div>
+        <div id="shop-grid" class="shop-grid"></div>
+        <p id="shop-empty" class="portfolio-empty" hidden>
+          Dodaj zdjęcia do folderów assets/photos/&lt;kategoria&gt;, aby wyświetlić ofertę wydruków.
+        </p>
+      </section>
+    </main>
+
+    <section id="shop-disabled-state" class="section reveal visible" hidden>
+      <h2 id="shop-disabled-title">Sklep jest chwilowo wyłączony</h2>
+      <p id="shop-disabled-desc">
+        Ta sekcja jest aktualnie ukryta w panelu administracyjnym.
+      </p>
+      <a id="shop-disabled-back" class="cta cta-secondary" href="./index.html#top">
+        Wróć na stronę główną
+      </a>
+    </section>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> <span id="footer-rights">c4uselove. Wszelkie prawa zastrzeżone.</span></p>
+    </footer>
+
+    <div id="quick-contact-modal" class="inquiry-modal" hidden>
+      <div class="inquiry-dialog">
+        <button
+          id="quick-contact-close"
+          class="modal-close"
+          type="button"
+          aria-label="Zamknij okno kontaktu"
+        >
+          ✕
+        </button>
+        <h3 id="contact-modal-title">Kontakt</h3>
+        <p id="contact-modal-lead">Wybierz najwygodniejszą formę kontaktu.</p>
+        <div class="contact-links">
+          <a class="mail contact-link" href="mailto:c4uselove@gmail.com">
+            <span class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                <path d="M3 6h18v12H3z" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <path d="M3 7l9 7 9-7" fill="none" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </span>
+            <span>c4uselove@gmail.com</span>
+          </a>
+          <a
+            class="contact-link"
+            href="https://www.instagram.com/c4uselove.jpg/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" />
+              </svg>
+            </span>
+            <span>c4uselove</span>
+          </a>
+        </div>
+        <div class="contact-modal-actions">
+          <a id="contact-modal-mail-btn" class="shop-btn inquiry-submit" href="mailto:c4uselove@gmail.com">
+            Napisz maila
+          </a>
+          <a
+            id="contact-modal-instagram-btn"
+            class="shop-btn inquiry-submit"
+            href="https://www.instagram.com/c4uselove.jpg/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Otwórz Instagram
+          </a>
+          <button id="contact-modal-booking-btn" class="shop-btn inquiry-submit" type="button">
+            Umów sesję
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="booking-modal" class="inquiry-modal booking-modal" hidden>
+      <div class="inquiry-dialog">
+        <button
+          id="booking-close"
+          class="modal-close booking-close"
+          type="button"
+          aria-label="Zamknij formularz sesji"
+        >
+          ✕
+        </button>
+        <h3 id="booking-title">Umów sesję</h3>
+        <form id="booking-form" class="inquiry-form">
+          <label id="booking-name-label" for="booking-name">Imię</label>
+          <input id="booking-name" name="name" type="text" autocomplete="name" required />
+
+          <label id="booking-email-label" for="booking-email">Mail</label>
+          <input id="booking-email" name="email" type="email" autocomplete="email" required />
+
+          <p id="booking-message-hint" class="booking-message-hint">
+            Napisz mi coś o sesji, która cię interesuje.
+          </p>
+          <label id="booking-message-label" for="booking-message">Wiadomość</label>
+          <textarea id="booking-message" name="message" rows="5" required></textarea>
+
+          <button id="booking-submit" class="shop-btn inquiry-submit" type="submit">
+            Wyślij wiadomość
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div id="inquiry-modal" class="inquiry-modal" hidden>
+      <div class="inquiry-dialog">
+        <button id="inquiry-close" class="modal-close" type="button" aria-label="Zamknij formularz">✕</button>
+        <h3 id="inquiry-title">Spytaj o dostępność</h3>
+        <form id="inquiry-form" class="inquiry-form">
+          <label for="inquiry-photo" id="inquiry-photo-label">Wybrane zdjęcie</label>
+          <select id="inquiry-photo" name="photo" required></select>
+
+          <label for="inquiry-size" id="inquiry-size-label">Rozmiar wydruku</label>
+          <select id="inquiry-size" name="size" required>
+            <option value="30x45 cm">30x45 cm</option>
+            <option value="40x60 cm">40x60 cm</option>
+            <option value="50x70 cm">50x70 cm</option>
+            <option value="70x100 cm">70x100 cm</option>
+            <option id="inquiry-size-custom" value="custom">Inny rozmiar</option>
+          </select>
+
+          <label for="inquiry-email" id="inquiry-email-label">Twój e-mail</label>
+          <input id="inquiry-email" name="email" type="email" autocomplete="email" required />
+
+          <label for="inquiry-message" id="inquiry-message-label">Wiadomość</label>
+          <textarea id="inquiry-message" name="message" rows="5" placeholder="Napisz, czego potrzebujesz..."></textarea>
+
+          <button id="inquiry-submit" class="shop-btn inquiry-submit" type="submit">Wyślij zapytanie</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="order-modal" class="inquiry-modal" hidden>
+      <div class="inquiry-dialog">
+        <button id="order-close" class="modal-close" type="button" aria-label="Zamknij formularz zamówienia">✕</button>
+        <h3 id="order-title">Kup wydruk</h3>
+        <form id="order-form" class="inquiry-form">
+          <label for="order-photo" id="order-photo-label">Wybrane zdjęcie</label>
+          <select id="order-photo" name="photo" required></select>
+
+          <label for="order-size" id="order-size-label">Rozmiar wydruku</label>
+          <select id="order-size" name="size" required></select>
+
+          <p class="booking-message-hint">
+            <strong id="order-price-label">Cena:</strong>
+            <span id="order-price-value">-</span>
+          </p>
+
+          <label for="order-first-name" id="order-first-name-label">Imię</label>
+          <input id="order-first-name" name="firstName" type="text" autocomplete="given-name" required />
+
+          <label for="order-last-name" id="order-last-name-label">Nazwisko</label>
+          <input id="order-last-name" name="lastName" type="text" autocomplete="family-name" required />
+
+          <label for="order-email" id="order-email-label">Twój e-mail</label>
+          <input id="order-email" name="email" type="email" autocomplete="email" required />
+
+          <label for="order-phone" id="order-phone-label">Telefon</label>
+          <input id="order-phone" name="phone" type="tel" autocomplete="tel" required />
+
+          <label for="order-city" id="order-city-label">Miasto</label>
+          <input id="order-city" name="city" type="text" autocomplete="address-level2" required />
+
+          <label for="order-postal-code" id="order-postal-code-label">Kod pocztowy</label>
+          <input id="order-postal-code" name="postalCode" type="text" autocomplete="postal-code" required />
+
+          <label for="order-street-address" id="order-street-address-label">Ulica / mieszkanie</label>
+          <input id="order-street-address" name="streetAddress" type="text" autocomplete="street-address" required />
+
+          <label for="order-payment-method" id="order-payment-method-label">Metoda płatności</label>
+          <select id="order-payment-method" name="paymentMethod" required>
+            <option value="card">Karta kredytowa</option>
+            <option value="apple_pay">Apple Pay</option>
+            <option value="google_pay">Google Pay</option>
+            <option value="paypal">PayPal</option>
+            <option value="blik">BLIK</option>
+            <option value="bitcoin">Bitcoin</option>
+            <option value="ethereum">Ethereum</option>
+          </select>
+
+          <p class="booking-message-hint">
+            <strong id="order-shipping-method-label">Wysyłka:</strong>
+            <span id="order-shipping-courier-only">Tylko kurier</span>
+          </p>
+
+          <label for="order-carrier" id="order-carrier-label">Przewoźnik</label>
+          <select id="order-carrier" name="carrier" required>
+            <option value="inpost_courier">InPost Kurier</option>
+            <option value="dpd">DPD</option>
+            <option value="dhl">DHL</option>
+            <option value="ups">UPS</option>
+            <option value="fedex">FedEx</option>
+          </select>
+
+          <label for="order-message" id="order-message-label">Uwagi do zamówienia</label>
+          <textarea id="order-message" name="message" rows="4" placeholder="Np. termin realizacji, dodatkowe informacje..."></textarea>
+
+          <button id="order-submit" class="shop-btn inquiry-submit" type="submit">Kupuję</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="photo-modal" class="photo-modal" hidden>
+      <button id="modal-close" class="modal-close" type="button" aria-label="Zamknij podgląd">
+        ✕
+      </button>
+      <button id="music-toggle" class="music-toggle" type="button" aria-label="Wycisz muzykę">
+        ♪
+      </button>
+      <img id="modal-image" class="modal-image" alt="Powiększone zdjęcie" />
+      <p id="modal-hint" class="modal-hint">Kliknij poza zdjęciem albo ESC, aby zamknąć.</p>
+      <audio id="modal-audio" loop preload="none"></audio>
+    </div>
+
+    <script src="./frontend/js/script.js"></script>
+  </body>
+</html>

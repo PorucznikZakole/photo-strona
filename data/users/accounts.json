@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "users": [
+    {
+      "id": 3,
+      "displayName": "kamil321",
+      "email": "kamil.kozlowski2000@icloud.com",
+      "emailNormalized": "kamil.kozlowski2000@icloud.com",
+      "passwordHash": "pbkdf2_sha256$0ef032126926aefc55da3e646e206c53$c187b6e3b8c18207015324b46a396c6fc5ff348daeb4794f6a07aa079e32b1d7",
+      "createdAt": "2026-03-09T22:22:50Z"
+    }
+  ],
+  "updatedAt": "2026-03-10T12:12:38Z"
+}

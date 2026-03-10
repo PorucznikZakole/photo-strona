@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cause Love Photography | Blog</title>
+    <meta
+      name="description"
+      content="Blog fotograficzny c4uselove. Historie z ulicy, kulisy sesji i rozmowa z odbiorcami."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link id="site-favicon" rel="icon" type="image/png" href="./assets/logo/logo.png?v=4" />
+    <link id="site-favicon-shortcut" rel="shortcut icon" href="./assets/logo/logo.png?v=4" />
+    <link id="site-favicon-apple" rel="apple-touch-icon" href="./assets/logo/logo.png?v=4" />
+    <link rel="stylesheet" href="./frontend/styles/styles.css" />
+  </head>
+  <body>
+    <div class="bg-stage" aria-hidden="true">
+      <video id="bg-video" class="bg-video" muted loop playsinline autoplay hidden></video>
+      <div class="bg-layer is-visible"></div>
+      <div class="bg-layer"></div>
+    </div>
+    <div class="bg-vignette" aria-hidden="true"></div>
+    <div class="grain"></div>
+
+    <header class="site-header">
+      <a class="brand" href="./index.html#top">
+        <img id="brand-logo" class="brand-logo" alt="Logo c4auselove" hidden />
+        <span>c4auselove | photography</span>
+      </a>
+      <nav>
+        <a id="nav-portfolio" href="./index.html#portfolio">Portfolio</a>
+        <a id="nav-about" href="./index.html#o-mnie">O mnie</a>
+        <a id="nav-contact" href="./index.html#kontakt">Kontakt</a>
+        <a id="nav-shop" href="./shop.html">Sklep</a>
+        <a id="nav-blog" href="#top">Blog</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch" aria-label="Zmiana języka">
+          <button
+            id="lang-pl"
+            class="lang-flag active"
+            data-lang="pl"
+            type="button"
+            title="Polski"
+            aria-label="Polski"
+            aria-pressed="true"
+          >
+            🇵🇱
+          </button>
+          <button
+            id="lang-en"
+            class="lang-flag"
+            data-lang="en"
+            type="button"
+            title="English"
+            aria-label="English"
+            aria-pressed="false"
+          >
+            🇬🇧
+          </button>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-live="polite">
+          Jasny tryb
+        </button>
+        <a
+          id="admin-link"
+          class="admin-link"
+          href="./admin.html"
+          aria-label="Panel administracyjny"
+          title="Panel administracyjny"
+        >
+          <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+            <circle cx="12" cy="8" r="3.3" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="M5.2 19.2c.7-3.2 3.5-5.2 6.8-5.2s6.1 2 6.8 5.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <main id="top" class="blog-main">
+      <section class="section blog-hero reveal visible">
+        <p class="kicker">Street photo journal</p>
+        <h1 id="blog-page-title">Blog</h1>
+        <p id="blog-page-lead" class="lead">
+          Notatki z miasta, kulisy sesji i miejsce na rozmowę pod wpisami.
+        </p>
+      </section>
+
+      <section class="section blog-layout reveal visible">
+        <aside class="blog-sidebar">
+          <h2 id="blog-posts-title">Wpisy</h2>
+          <div id="blog-post-tabs" class="blog-post-tabs" role="tablist" aria-label="Wpisy blogowe"></div>
+        </aside>
+        <article class="blog-post-view">
+          <h2 id="blog-post-title"></h2>
+          <p id="blog-post-meta" class="blog-post-meta"></p>
+          <div id="blog-post-content" class="blog-post-content"></div>
+        </article>
+      </section>
+
+      <section id="blog-community" class="section reveal visible">
+        <h2 id="blog-community-title">Komentarze</h2>
+
+        <div id="blog-auth-feedback" class="admin-feedback blog-feedback" role="status" aria-live="polite"></div>
+
+        <div id="blog-user-panel" class="blog-user-panel" hidden>
+          <p id="blog-user-welcome" class="blog-user-welcome"></p>
+          <button id="blog-logout-btn" class="shop-btn admin-ghost-btn" type="button">Wyloguj</button>
+        </div>
+
+        <div id="blog-auth-actions" class="blog-auth-actions">
+          <button id="blog-open-login" class="shop-btn admin-ghost-btn" type="button">Zaloguj</button>
+          <button id="blog-open-register" class="shop-btn admin-ghost-btn" type="button">Załóż konto</button>
+        </div>
+
+        <p id="blog-comment-target" class="admin-hint blog-comment-target"></p>
+        <p id="blog-comments-empty" class="admin-hint" hidden>Brak komentarzy dla tego wpisu.</p>
+        <div id="blog-comments-list" class="admin-inbox-list"></div>
+
+        <form id="blog-comment-form" class="admin-form blog-comment-form">
+          <label id="blog-comment-label" for="blog-comment-input">Dodaj komentarz</label>
+          <textarea
+            id="blog-comment-input"
+            name="content"
+            rows="4"
+            maxlength="1500"
+            placeholder="Napisz komentarz..."
+            required
+          ></textarea>
+          <button id="blog-comment-submit" class="shop-btn" type="submit">Dodaj komentarz</button>
+        </form>
+      </section>
+    </main>
+
+    <div id="blog-auth-modal" class="blog-auth-modal" hidden>
+      <div class="blog-auth-dialog">
+        <button id="blog-auth-close" class="shop-btn booking-close" type="button" aria-label="Zamknij">
+          ×
+        </button>
+
+        <div class="blog-auth-mode-switch">
+          <button id="blog-switch-login" class="shop-tab blog-auth-mode-btn active" type="button" aria-pressed="true">
+            Logowanie
+          </button>
+          <button id="blog-switch-register" class="shop-tab blog-auth-mode-btn" type="button" aria-pressed="false">
+            Rejestracja
+          </button>
+        </div>
+
+        <form id="blog-login-form" class="admin-form blog-auth-form">
+          <h3 id="blog-login-title">Logowanie</h3>
+          <label id="blog-login-email-label" for="blog-login-email">E-mail</label>
+          <input id="blog-login-email" name="email" type="email" autocomplete="email" required />
+
+          <label id="blog-login-password-label" for="blog-login-password">Hasło</label>
+          <input
+            id="blog-login-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            minlength="6"
+            required
+          />
+
+          <button id="blog-login-submit" class="shop-btn" type="submit">Zaloguj</button>
+        </form>
+
+        <form id="blog-register-form" class="admin-form blog-auth-form" hidden>
+          <h3 id="blog-register-title">Rejestracja</h3>
+          <label id="blog-register-name-label" for="blog-register-name">Nazwa użytkownika</label>
+          <input id="blog-register-name" name="displayName" type="text" required />
+
+          <label id="blog-register-email-label" for="blog-register-email">E-mail</label>
+          <input id="blog-register-email" name="email" type="email" autocomplete="email" required />
+
+          <label id="blog-register-password-label" for="blog-register-password">Hasło</label>
+          <input
+            id="blog-register-password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          />
+
+          <button id="blog-register-submit" class="shop-btn" type="submit">Załóż konto</button>
+        </form>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> <span id="footer-rights">c4uselove. Wszelkie prawa zastrzeżone.</span></p>
+    </footer>
+
+    <script src="./frontend/js/script.js"></script>
+    <script src="./frontend/js/blog.js"></script>
+  </body>
+</html>

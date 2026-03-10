@@ -381,6 +381,7 @@ def normalize_site_settings(raw):
     shop_enabled = raw.get("shopEnabled", True)
     shop_enabled = bool(shop_enabled)
     blog_enabled = bool(raw.get("blogEnabled", True))
+    booking_enabled = bool(raw.get("bookingEnabled", True))
     maintenance_mode = bool(raw.get("maintenanceMode", False))
     content_overrides = sanitize_content_overrides(raw.get("contentOverrides"))
     legacy_enabled_categories = sanitize_enabled_categories(raw.get("enabledCategories"))
@@ -396,6 +397,7 @@ def normalize_site_settings(raw):
     return {
         "shopEnabled": shop_enabled,
         "blogEnabled": blog_enabled,
+        "bookingEnabled": booking_enabled,
         "maintenanceMode": maintenance_mode,
         "contentOverrides": content_overrides,
         # Legacy key kept for backward compatibility with older frontend bundles.
@@ -421,6 +423,7 @@ def init_db() -> None:
               id INTEGER PRIMARY KEY CHECK(id = 1),
               shop_enabled INTEGER NOT NULL DEFAULT 1,
               blog_enabled INTEGER NOT NULL DEFAULT 1,
+              booking_enabled INTEGER NOT NULL DEFAULT 1,
               maintenance_mode INTEGER NOT NULL DEFAULT 0,
               content_overrides TEXT NOT NULL DEFAULT '{}',
               enabled_categories TEXT NOT NULL DEFAULT '{}',
@@ -555,6 +558,11 @@ def init_db() -> None:
         except sqlite3.OperationalError:
             # Column already exists in migrated databases.
             pass
+        try:
+            conn.execute("ALTER TABLE settings ADD COLUMN booking_enabled INTEGER NOT NULL DEFAULT 1")
+        except sqlite3.OperationalError:
+            # Column already exists in migrated databases.
+            pass
 
         now = utc_now_iso()
         admin_row = conn.execute("SELECT id, password_hash FROM admin WHERE id = 1").fetchone()
@@ -578,12 +586,13 @@ def init_db() -> None:
                   id,
                   shop_enabled,
                   blog_enabled,
+                  booking_enabled,
                   maintenance_mode,
                   content_overrides,
                   enabled_categories,
                   updated_at
                 )
-                VALUES (1, 1, 1, 0, ?, ?, ?)
+                VALUES (1, 1, 1, 1, 0, ?, ?, ?)
                 """,
                 (
                     json.dumps({"pl": {}, "en": {}}, ensure_ascii=False),
@@ -614,6 +623,7 @@ def read_site_settings_from_db():
             SELECT
               shop_enabled,
               blog_enabled,
+              booking_enabled,
               maintenance_mode,
               content_overrides,
               enabled_categories,
@@ -628,6 +638,7 @@ def read_site_settings_from_db():
             return {
                 "shopEnabled": True,
                 "blogEnabled": True,
+                "bookingEnabled": True,
                 "maintenanceMode": False,
                 "contentOverrides": {"pl": {}, "en": {}},
                 "enabledCategories": default_categories,
@@ -663,6 +674,7 @@ def read_site_settings_from_db():
         return {
             "shopEnabled": bool(row["shop_enabled"]),
             "blogEnabled": bool(row["blog_enabled"]),
+            "bookingEnabled": bool(row["booking_enabled"]),
             "maintenanceMode": bool(row["maintenance_mode"]),
             "contentOverrides": sanitize_content_overrides(content_overrides),
             "enabledCategories": legacy_safe_categories,
@@ -680,6 +692,7 @@ def write_site_settings_to_db(settings):
             SET
               shop_enabled = ?,
               blog_enabled = ?,
+              booking_enabled = ?,
               maintenance_mode = ?,
               content_overrides = ?,
               enabled_categories = ?,
@@ -691,6 +704,7 @@ def write_site_settings_to_db(settings):
             (
                 1 if normalized["shopEnabled"] else 0,
                 1 if normalized["blogEnabled"] else 0,
+                1 if normalized["bookingEnabled"] else 0,
                 1 if normalized["maintenanceMode"] else 0,
                 json.dumps(normalized["contentOverrides"], ensure_ascii=False),
                 json.dumps(normalized["enabledCategories"], ensure_ascii=False),

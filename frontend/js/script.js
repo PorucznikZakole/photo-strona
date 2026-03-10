@@ -128,6 +128,7 @@ function createDefaultEnabledCategories() {
 const DEFAULT_SITE_SETTINGS = {
   shopEnabled: true,
   blogEnabled: true,
+  bookingEnabled: true,
   maintenanceMode: false,
   enabledCategories: createDefaultEnabledCategories(),
   shopCategories: createDefaultEnabledCategories(),
@@ -1273,6 +1274,7 @@ function normalizeSiteSettings(rawSettings) {
     ...DEFAULT_SITE_SETTINGS,
     ...rawSettings,
     blogEnabled: rawSettings.blogEnabled !== false,
+    bookingEnabled: rawSettings.bookingEnabled !== false,
     maintenanceMode: Boolean(rawSettings.maintenanceMode),
     enabledCategories: legacyEnabledCategories,
     shopCategories,
@@ -1361,6 +1363,12 @@ async function fetchSiteSettingsFromApi() {
     typeof siteSettings.blogEnabled === "boolean"
   ) {
     remoteSettings.blogEnabled = siteSettings.blogEnabled;
+  }
+  if (
+    !Object.prototype.hasOwnProperty.call(rawSettings, "bookingEnabled") &&
+    typeof siteSettings.bookingEnabled === "boolean"
+  ) {
+    remoteSettings.bookingEnabled = siteSettings.bookingEnabled;
   }
   if (
     !Object.prototype.hasOwnProperty.call(rawSettings, "maintenanceMode") &&
@@ -1694,6 +1702,7 @@ function applySiteSettings() {
   const maintenanceMode = siteSettings.maintenanceMode === true;
   const shopEnabled = siteSettings.shopEnabled !== false;
   const blogEnabled = siteSettings.blogEnabled !== false;
+  const bookingEnabled = siteSettings.bookingEnabled !== false;
   const maintenanceScreen = ensureMaintenanceScreenElement();
 
   if (maintenanceScreen) {
@@ -1753,6 +1762,16 @@ function applySiteSettings() {
   }
   if (blogDisabledSectionEl) {
     blogDisabledSectionEl.hidden = maintenanceMode || blogEnabled;
+  }
+
+  if (heroCtaEl) {
+    heroCtaEl.hidden = !bookingEnabled;
+  }
+  if (contactModalBookingBtn) {
+    contactModalBookingBtn.hidden = !bookingEnabled;
+  }
+  if (!bookingEnabled && bookingModalEl && !bookingModalEl.hidden) {
+    closeBookingModal();
   }
 
   if (!isCategoryEnabled(activeShopCategory, "shop")) {
@@ -4150,6 +4169,9 @@ function closeQuickContactModal() {
 
 function openBookingModal() {
   if (!bookingModalEl) {
+    return;
+  }
+  if (siteSettings.bookingEnabled === false) {
     return;
   }
 

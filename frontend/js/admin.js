@@ -47,6 +47,7 @@ function createDefaultEnabledCategories() {
 const DEFAULT_SITE_SETTINGS = {
   shopEnabled: true,
   blogEnabled: true,
+  bookingEnabled: true,
   maintenanceMode: false,
   enabledCategories: createDefaultEnabledCategories(),
   shopCategories: createDefaultEnabledCategories(),
@@ -65,6 +66,7 @@ const feedbackEl = document.getElementById("admin-feedback");
 const settingsFormEl = document.getElementById("admin-settings-form");
 const shopEnabledInputEl = document.getElementById("setting-shop-enabled");
 const blogEnabledInputEl = document.getElementById("setting-blog-enabled");
+const bookingEnabledInputEl = document.getElementById("setting-booking-enabled");
 const maintenanceModeInputEl = document.getElementById("setting-maintenance-mode");
 const portfolioCategoryBwInputEl = document.getElementById("setting-portfolio-category-bw");
 const portfolioCategoryColorInputEl = document.getElementById("setting-portfolio-category-color");
@@ -624,6 +626,7 @@ function normalizeSiteSettings(rawSettings) {
     ...DEFAULT_SITE_SETTINGS,
     ...rawSettings,
     blogEnabled: rawSettings.blogEnabled !== false,
+    bookingEnabled: rawSettings.bookingEnabled !== false,
     maintenanceMode: Boolean(rawSettings.maintenanceMode),
     enabledCategories: legacyEnabled,
     shopCategories,
@@ -649,10 +652,13 @@ function mergeSettingsWithCategoryFallback(rawSettings, categoryFallback) {
   const safeFallback = normalizeSiteSettings(categoryFallback);
   const hasBlogEnabled = isPlainObject(rawSettings)
     && Object.prototype.hasOwnProperty.call(rawSettings, "blogEnabled");
+  const hasBookingEnabled = isPlainObject(rawSettings)
+    && Object.prototype.hasOwnProperty.call(rawSettings, "bookingEnabled");
   const hasMaintenanceMode = isPlainObject(rawSettings)
     && Object.prototype.hasOwnProperty.call(rawSettings, "maintenanceMode");
   if (!isPlainObject(rawSettings)) {
     normalized.blogEnabled = safeFallback.blogEnabled !== false;
+    normalized.bookingEnabled = safeFallback.bookingEnabled !== false;
     normalized.maintenanceMode = Boolean(safeFallback.maintenanceMode);
     normalized.enabledCategories = sanitizeEnabledCategories(safeFallback.enabledCategories);
     normalized.shopCategories = sanitizeEnabledCategories(safeFallback.shopCategories);
@@ -661,6 +667,9 @@ function mergeSettingsWithCategoryFallback(rawSettings, categoryFallback) {
   }
   if (!hasBlogEnabled) {
     normalized.blogEnabled = safeFallback.blogEnabled !== false;
+  }
+  if (!hasBookingEnabled) {
+    normalized.bookingEnabled = safeFallback.bookingEnabled !== false;
   }
   if (!hasMaintenanceMode) {
     normalized.maintenanceMode = Boolean(safeFallback.maintenanceMode);
@@ -862,6 +871,9 @@ function initializeSettingsForm() {
   }
   if (blogEnabledInputEl) {
     blogEnabledInputEl.checked = siteSettings.blogEnabled !== false;
+  }
+  if (bookingEnabledInputEl) {
+    bookingEnabledInputEl.checked = siteSettings.bookingEnabled !== false;
   }
   if (maintenanceModeInputEl) {
     maintenanceModeInputEl.checked = siteSettings.maintenanceMode === true;
@@ -1457,6 +1469,7 @@ async function handleSettingsSubmit(event) {
     ...siteSettings,
     shopEnabled: shopEnabledInputEl.checked,
     blogEnabled: blogEnabledInputEl?.checked !== false,
+    bookingEnabled: bookingEnabledInputEl?.checked !== false,
     maintenanceMode: maintenanceModeInputEl?.checked === true,
     enabledCategories: sanitizeEnabledCategories(portfolioCategories),
     shopCategories,

@@ -196,6 +196,14 @@ body.shop-link-hidden nav {
   margin-left: -3rem;
 }
 
+body.blog-link-hidden nav {
+  margin-left: -4rem;
+}
+
+body.shop-link-hidden.blog-link-hidden nav {
+  margin-left: -2rem;
+}
+
 nav a {
   text-decoration: none;
   color: var(--muted);
@@ -393,6 +401,17 @@ h3 {
 
 .maintenance-screen .lead {
   margin: 0 auto;
+}
+
+body.maintenance-mode .site-header,
+body.maintenance-mode main,
+body.maintenance-mode .site-footer,
+body.maintenance-mode #shop-disabled-state {
+  display: none !important;
+}
+
+body.maintenance-mode .maintenance-screen {
+  display: block !important;
 }
 
 .section-head p,

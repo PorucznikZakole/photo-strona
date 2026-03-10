@@ -70,6 +70,8 @@ const portfolioEmptyEl = document.getElementById("portfolio-empty");
 const shopMainEl = document.querySelector(".shop-main");
 const shopHomeSectionEl = document.getElementById("shop");
 const shopDisabledSectionEl = document.getElementById("shop-disabled-state");
+const blogMainEl = document.querySelector(".blog-main");
+const blogDisabledSectionEl = document.getElementById("blog-disabled-state");
 const navContactLinkEl = document.getElementById("nav-contact");
 const quickContactModalEl = document.getElementById("quick-contact-modal");
 const quickContactCloseBtn = document.getElementById("quick-contact-close");
@@ -125,6 +127,7 @@ function createDefaultEnabledCategories() {
 
 const DEFAULT_SITE_SETTINGS = {
   shopEnabled: true,
+  blogEnabled: true,
   maintenanceMode: false,
   enabledCategories: createDefaultEnabledCategories(),
   shopCategories: createDefaultEnabledCategories(),
@@ -178,6 +181,9 @@ const translations = {
     portfolioHideBtn: "Zwiń galerię",
     portfolioPageTitle: "Cause Love Photography | Portfolio",
     blogPageTitle: "Cause Love Photography | Blog",
+    blogDisabledTitle: "Blog jest chwilowo wyłączony",
+    blogDisabledDesc: "Ta sekcja jest aktualnie ukryta w panelu administracyjnym.",
+    blogDisabledBack: "Wróć na stronę główną",
     portfolioPageKicker: "Galeria street art prints",
     portfolioPageHeading: "Pełna kolekcja miejskich kadrów.",
     portfolioPageLead:
@@ -360,6 +366,9 @@ const translations = {
     portfolioHideBtn: "Hide gallery",
     portfolioPageTitle: "Cause Love Photography | Portfolio",
     blogPageTitle: "Cause Love Photography | Blog",
+    blogDisabledTitle: "Blog is temporarily disabled",
+    blogDisabledDesc: "This section is currently hidden in the admin panel.",
+    blogDisabledBack: "Back to home",
     portfolioPageKicker: "Street art print gallery",
     portfolioPageHeading: "Full collection of urban frames.",
     portfolioPageLead:
@@ -1024,6 +1033,9 @@ const translatableNodes = {
   shopDisabledTitle: document.getElementById("shop-disabled-title"),
   shopDisabledDesc: document.getElementById("shop-disabled-desc"),
   shopDisabledBack: document.getElementById("shop-disabled-back"),
+  blogDisabledTitle: document.getElementById("blog-disabled-title"),
+  blogDisabledDesc: document.getElementById("blog-disabled-desc"),
+  blogDisabledBack: document.getElementById("blog-disabled-back"),
   portfolioTabAll: document.getElementById("portfolio-tab-all"),
   portfolioTabBw: document.getElementById("portfolio-tab-bw"),
   portfolioTabColor: document.getElementById("portfolio-tab-color"),
@@ -1260,6 +1272,7 @@ function normalizeSiteSettings(rawSettings) {
   return {
     ...DEFAULT_SITE_SETTINGS,
     ...rawSettings,
+    blogEnabled: rawSettings.blogEnabled !== false,
     maintenanceMode: Boolean(rawSettings.maintenanceMode),
     enabledCategories: legacyEnabledCategories,
     shopCategories,
@@ -1343,6 +1356,12 @@ async function fetchSiteSettingsFromApi() {
 
   const rawSettings = isPlainObject(result.data.settings) ? result.data.settings : {};
   const remoteSettings = normalizeSiteSettings(rawSettings);
+  if (
+    !Object.prototype.hasOwnProperty.call(rawSettings, "blogEnabled") &&
+    typeof siteSettings.blogEnabled === "boolean"
+  ) {
+    remoteSettings.blogEnabled = siteSettings.blogEnabled;
+  }
   if (
     !Object.prototype.hasOwnProperty.call(rawSettings, "maintenanceMode") &&
     typeof siteSettings.maintenanceMode === "boolean"
@@ -1674,6 +1693,7 @@ function hideActiveOverlaysForMaintenance() {
 function applySiteSettings() {
   const maintenanceMode = siteSettings.maintenanceMode === true;
   const shopEnabled = siteSettings.shopEnabled !== false;
+  const blogEnabled = siteSettings.blogEnabled !== false;
   const maintenanceScreen = ensureMaintenanceScreenElement();
 
   if (maintenanceScreen) {
@@ -1709,17 +1729,30 @@ function applySiteSettings() {
     translatableNodes.navShop.style.display = shopEnabled ? "" : "none";
     translatableNodes.navShop.tabIndex = shopEnabled ? 0 : -1;
   }
+  if (translatableNodes.navBlog) {
+    translatableNodes.navBlog.hidden = !blogEnabled;
+    translatableNodes.navBlog.setAttribute("aria-hidden", String(!blogEnabled));
+    translatableNodes.navBlog.style.display = blogEnabled ? "" : "none";
+    translatableNodes.navBlog.tabIndex = blogEnabled ? 0 : -1;
+  }
 
   document.body.classList.toggle("shop-link-hidden", !shopEnabled);
+  document.body.classList.toggle("blog-link-hidden", !blogEnabled);
 
   if (shopMainEl) {
-    shopMainEl.hidden = !shopEnabled;
+    shopMainEl.hidden = maintenanceMode || !shopEnabled;
   }
   if (shopHomeSectionEl) {
-    shopHomeSectionEl.hidden = !shopEnabled;
+    shopHomeSectionEl.hidden = maintenanceMode || !shopEnabled;
   }
   if (shopDisabledSectionEl) {
-    shopDisabledSectionEl.hidden = shopEnabled;
+    shopDisabledSectionEl.hidden = maintenanceMode || shopEnabled;
+  }
+  if (blogMainEl) {
+    blogMainEl.hidden = maintenanceMode || !blogEnabled;
+  }
+  if (blogDisabledSectionEl) {
+    blogDisabledSectionEl.hidden = maintenanceMode || blogEnabled;
   }
 
   if (!isCategoryEnabled(activeShopCategory, "shop")) {

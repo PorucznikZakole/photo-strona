@@ -18,6 +18,19 @@ const PRIORITY_CONTENT_KEYS = [
   "shopCollectionsTitle",
   "shopCollectionsDesc"
 ];
+const CONTENT_EDITOR_GROUPS = [
+  { id: "home", label: "Strona główna" },
+  { id: "portfolio", label: "Portfolio" },
+  { id: "shop", label: "Sklep" },
+  { id: "about", label: "O mnie" },
+  { id: "contact", label: "Kontakt" },
+  { id: "blog", label: "Blog" },
+  { id: "system", label: "System" },
+  { id: "other", label: "Inne" }
+];
+const CONTENT_EDITOR_GROUP_INDEX = Object.fromEntries(
+  CONTENT_EDITOR_GROUPS.map((group, index) => [group.id, index])
+);
 const PHOTO_CATEGORIES = ["bw", "color", "nature", "landscape", "portrait"];
 const PHOTO_CATEGORY_FOLDERS = {
   bw: "black-and-white",
@@ -625,6 +638,40 @@ function shouldIncludeContentEditorKey(key) {
   return allowedPattern.test(safeKey);
 }
 
+function getContentEditorGroupId(key) {
+  const safeKey = String(key || "").trim();
+  if (!safeKey) {
+    return "other";
+  }
+  if (/^hero/i.test(safeKey)) {
+    return "home";
+  }
+  if (/^portfolio/i.test(safeKey)) {
+    return "portfolio";
+  }
+  if (/^shop/i.test(safeKey)) {
+    return "shop";
+  }
+  if (/^about/i.test(safeKey)) {
+    return "about";
+  }
+  if (/^contact/i.test(safeKey)) {
+    return "contact";
+  }
+  if (/^blog/i.test(safeKey)) {
+    return "blog";
+  }
+  if (/^(maintenance|footer)/i.test(safeKey)) {
+    return "system";
+  }
+  return "other";
+}
+
+function getContentEditorGroupLabel(groupId) {
+  const group = CONTENT_EDITOR_GROUPS.find((entry) => entry.id === groupId);
+  return group?.label || "Inne";
+}
+
 function getAllEditableContentKeys() {
   const keys = new Set([...PRIORITY_CONTENT_KEYS, ...staticContentFieldKeys]);
 
@@ -649,6 +696,13 @@ function getAllEditableContentKeys() {
   return [...keys]
     .filter((key) => shouldIncludeContentEditorKey(key))
     .sort((left, right) => {
+      const leftGroup = getContentEditorGroupId(left);
+      const rightGroup = getContentEditorGroupId(right);
+      const leftGroupIndex = CONTENT_EDITOR_GROUP_INDEX[leftGroup] ?? Number.MAX_SAFE_INTEGER;
+      const rightGroupIndex = CONTENT_EDITOR_GROUP_INDEX[rightGroup] ?? Number.MAX_SAFE_INTEGER;
+      if (leftGroupIndex !== rightGroupIndex) {
+        return leftGroupIndex - rightGroupIndex;
+      }
       const priorityDiff = getContentKeyPriority(left) - getContentKeyPriority(right);
       if (priorityDiff !== 0) {
         return priorityDiff;
@@ -700,6 +754,22 @@ function createDynamicContentField(key) {
   return { wrapper, input: textarea };
 }
 
+function createContentEditorGroupElement(groupId) {
+  const section = document.createElement("section");
+  section.className = "admin-content-group";
+  section.dataset.group = groupId;
+
+  const heading = document.createElement("h3");
+  heading.className = "admin-content-group-title";
+  heading.textContent = getContentEditorGroupLabel(groupId);
+
+  const fieldsWrap = document.createElement("div");
+  fieldsWrap.className = "admin-content-group-fields";
+
+  section.append(heading, fieldsWrap);
+  return { section, fieldsWrap };
+}
+
 function applyContentSearchFilter() {
   if (!contentAllFieldsContainerEl) {
     return;
@@ -713,6 +783,12 @@ function applyContentSearchFilter() {
     }
     const haystack = String(field.dataset.searchText || "").toLowerCase();
     field.hidden = !haystack.includes(query);
+  });
+
+  const groups = contentAllFieldsContainerEl.querySelectorAll(".admin-content-group");
+  groups.forEach((group) => {
+    const visibleFields = group.querySelectorAll(".admin-content-field:not([hidden])");
+    group.hidden = visibleFields.length === 0;
   });
 }
 
@@ -734,12 +810,20 @@ function rebuildContentFieldRegistry() {
   const allKeys = getAllEditableContentKeys();
   const staticKeys = new Set(contentFieldElements.keys());
   const dynamicKeys = allKeys.filter((key) => !staticKeys.has(key));
+  const groupMap = new Map();
   dynamicKeys.forEach((key) => {
     if (!contentAllFieldsContainerEl) {
       return;
     }
+    const groupId = getContentEditorGroupId(key);
+    let groupElements = groupMap.get(groupId);
+    if (!groupElements) {
+      groupElements = createContentEditorGroupElement(groupId);
+      groupMap.set(groupId, groupElements);
+      contentAllFieldsContainerEl.append(groupElements.section);
+    }
     const { wrapper, input } = createDynamicContentField(key);
-    contentAllFieldsContainerEl.append(wrapper);
+    groupElements.fieldsWrap.append(wrapper);
     contentFieldElements.set(key, input);
   });
 

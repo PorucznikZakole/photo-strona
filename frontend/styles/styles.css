@@ -882,6 +882,28 @@ body.modal-open {
   padding-right: 0.2rem;
 }
 
+.admin-content-group {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.6rem 0.65rem;
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-content-group-title {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-content-group-fields {
+  display: grid;
+  gap: 0.55rem;
+}
+
 .admin-content-field {
   border: 1px solid var(--line);
   border-radius: 10px;

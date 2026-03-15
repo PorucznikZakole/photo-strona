@@ -2980,6 +2980,8 @@ const videoCandidates = [
   "./assets/video/background.mov",
   "./assets/video/background.m4v"
 ];
+const videoExtensions = ["mp4", "webm", "mov", "m4v", "ogv"];
+const videoDirectories = ["./assets/video", "./assets/videos"];
 const legacyMusicTrackCandidates = [
   "./assets/audio/background.mp3",
   "./assets/audio/background.ogg",
@@ -3313,6 +3315,115 @@ async function findFeaturedPhotoSources() {
   return [...new Set(listed)];
 }
 
+function normalizeVideoDirectoryPath(directoryPath = "./assets/video") {
+  if (typeof directoryPath !== "string" || !directoryPath.trim()) {
+    return "./assets/video";
+  }
+  return directoryPath.trim().replace(/\/+$/, "");
+}
+
+function normalizeVideoEntry(entry, directoryPath = "./assets/video") {
+  if (typeof entry !== "string") {
+    return null;
+  }
+
+  const trimmed = entry.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (
+    trimmed.startsWith("./") ||
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://")
+  ) {
+    return trimmed;
+  }
+
+  const basePath = normalizeVideoDirectoryPath(directoryPath);
+  return `${basePath}/${encodeURIComponent(trimmed)}`;
+}
+
+function normalizeVideoList(entries, directoryPath = "./assets/video") {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+  return entries
+    .map((entry) => normalizeVideoEntry(entry, directoryPath))
+    .filter(Boolean);
+}
+
+async function findVideosFromManifest(directoryPath = "./assets/video") {
+  const basePath = normalizeVideoDirectoryPath(directoryPath);
+  const manifestData = await loadManifestJson(`${basePath}/videos.json`);
+  if (!Array.isArray(manifestData)) {
+    return [];
+  }
+  return normalizeVideoList(manifestData, basePath);
+}
+
+async function findVideosFromDirectoryListing(directoryPath = "./assets/video") {
+  try {
+    const basePath = normalizeVideoDirectoryPath(directoryPath);
+    const response = await fetch(`${basePath}/`, { cache: "no-store" });
+    if (!response.ok) {
+      return [];
+    }
+
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const links = Array.from(doc.querySelectorAll("a[href]")).map((node) =>
+      node.getAttribute("href")
+    );
+
+    const found = [];
+    links.forEach((href) => {
+      if (!href) {
+        return;
+      }
+
+      const cleanHref = href.split("#")[0].split("?")[0];
+      if (!cleanHref || cleanHref.endsWith("/")) {
+        return;
+      }
+
+      const decodedName = decodeURIComponent(cleanHref).split("/").pop();
+      if (!decodedName) {
+        return;
+      }
+
+      const ext = decodedName.split(".").pop()?.toLowerCase();
+      if (!ext || !videoExtensions.includes(ext)) {
+        return;
+      }
+
+      found.push(`${basePath}/${encodeURIComponent(decodedName)}`);
+    });
+
+    return [...new Set(found)];
+  } catch {
+    return [];
+  }
+}
+
+async function collectVideoCandidates() {
+  const manifestResults = await Promise.all(
+    videoDirectories.map((directory) => findVideosFromManifest(directory))
+  );
+  const listedResults = await Promise.all(
+    videoDirectories.map((directory) => findVideosFromDirectoryListing(directory))
+  );
+
+  const combined = [
+    ...videoCandidates,
+    ...manifestResults.flat(),
+    ...listedResults.flat()
+  ];
+  return [...new Set(combined)];
+}
+
 function inferCategoryFromSource(src, index) {
   const fallback = PHOTO_CATEGORIES[index % PHOTO_CATEGORIES.length];
   const filename = decodeURIComponent(src.split("/").pop() || "").toLowerCase();
@@ -3429,7 +3540,7 @@ function checkVideo(src) {
   return new Promise((resolve) => {
     const video = document.createElement("video");
     let settled = false;
-    const timeout = setTimeout(() => done(null), 2500);
+    const timeout = setTimeout(() => done(null), 9000);
 
     function done(result) {
       if (settled) {
@@ -3523,7 +3634,8 @@ async function initLogo() {
 }
 
 async function findVideoSource() {
-  for (const candidate of videoCandidates) {
+  const candidates = await collectVideoCandidates();
+  for (const candidate of candidates) {
     const found = await checkVideo(candidate);
     if (found) {
       return found;

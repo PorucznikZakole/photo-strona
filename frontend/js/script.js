@@ -5103,7 +5103,12 @@ async function initMedia() {
     PHOTO_CATEGORIES.map(async (category) => {
       const candidates = categorizedPhotoCandidates[category] || [];
       const verifiedPhotos = await Promise.all(candidates.map(checkImage));
-      const uniquePhotos = [...new Set(verifiedPhotos.filter(Boolean))];
+      let uniquePhotos = [...new Set(verifiedPhotos.filter(Boolean))];
+      if (!uniquePhotos.length && candidates.length) {
+        // Keep candidate paths as fallback when image pre-check fails temporarily
+        // (for example transient 5xx from hosting) to avoid an empty gallery.
+        uniquePhotos = [...new Set(candidates)];
+      }
       return [category, uniquePhotos];
     })
   );
@@ -5124,6 +5129,9 @@ async function initMedia() {
 
   const verifiedFeaturedPhotos = await Promise.all(featuredPhotoCandidates.map(checkImage));
   featuredSalePhotoSources = [...new Set(verifiedFeaturedPhotos.filter(Boolean))];
+  if (!featuredSalePhotoSources.length && featuredPhotoCandidates.length) {
+    featuredSalePhotoSources = [...new Set(featuredPhotoCandidates)];
+  }
   featuredSalePhotoSources.forEach((src) => {
     if (seenPhotos.has(src)) {
       return;
